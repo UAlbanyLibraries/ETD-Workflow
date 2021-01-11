@@ -1,5 +1,5 @@
 import os
-from packages import ArchivalInformationPackage
+from packages import SubmissionInformationPackage
 
 
 #version of ingest-ETD.py
@@ -8,6 +8,16 @@ if os.name == "nt":
     pathSIP = "\\\\Lincoln\\Library\\ETDs\\AIP_testing"
 else:
     pathSIP = "/media/Library/ETDs/AIP_testing"
+
+sipPath = os.path.join(pathSIP, "etdadmin_upload_739987.zip")
+
+SIP = SubmissionInformationPackage(sipPath)
+SIP.load()
+print (SIP.bag.info['Completion-Date'])
+print (SIP.bag.info['Author'])
+print (SIP.bag.info['Bag-Type'])
+print (SIP.bag.is_valid())
+SIP.close()
 
 """
 for SIP in os.listdir(pathSIP):
@@ -22,7 +32,7 @@ for SIP in os.listdir(pathSIP):
             print (AIP.identifier)
             print (AIP.bag.info['Author'])
             print (AIP.bag.info['Author-Email'])
-"""
+
 testAIP = os.path.join(pathSIP, "storage", "etdadmin_upload_738128.zip")
 AIP = ArchivalInformationPackage()
 AIP.load(testAIP)
@@ -34,3 +44,4 @@ print (AIP.bag.info['Author-Email'])
 print (AIP.bag.info['Title'])
 print (AIP.bag.info['Completion-Date'])
 AIP.close()
+"""
