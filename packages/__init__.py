@@ -22,7 +22,7 @@ class InformationPackage:
 
     def clean(self):
         """
-        Accepts a loaded AIP and cleans out filesystem artifacts
+        Accepts a loaded SIP or AIP and cleans out filesystem artifacts
         from the data directory that interfere with Bag validation.
         """
         if self.data is None:
@@ -147,16 +147,59 @@ class SubmissionInformationPackage(InformationPackage):
         self.bag.info['Degree-Name'] = root.xpath('//DISS_submission/DISS_description/DISS_degree/text()')[0]
         self.bag.info['Institution'] = root.xpath('//DISS_submission/DISS_description/DISS_institution/DISS_inst_name/text()')[0]
         self.bag.info['Department'] = root.xpath('//DISS_submission/DISS_description/DISS_institution/DISS_inst_contact/text()')[0]
-        self.bag.info['Keywords'] = root.xpath('//DISS_submission/DISS_description/DISS_categorization/DISS_keyword/text()')[0]
+        
+        keywords = root.xpath('//DISS_submission/DISS_description/DISS_categorization/DISS_keyword')[0]
+        if keywords.text:
+            self.bag.info['Keywords'] = keywords.text
         self.bag.info['Language'] = root.xpath('//DISS_submission/DISS_description/DISS_categorization/DISS_language/text()')[0]
+        
         disciplineList = []
+        categorization = root.xpath('//DISS_submission/DISS_description/DISS_categorization')[0]
+        for catagory in categorization:
+            if catagory.tag == "DISS_category":
+                disciplineList.append(catagory.find("DISS_cat_desc").text)
+        self.bag.info['disciplines'] = "|".join(disciplineList)
 
+        committee = root.xpath('//DISS_submission/DISS_description')[0]
+        advisorCount = 0
+        committeeCount = 0
+        for member in committee:
+            if member.tag == "DISS_advisor":
+                advisorCount += 1
+                memberName = member.find("DISS_name")
+                nameList = []
+                if memberName.find("DISS_fname") is not None:
+                    nameList.append(memberName.find("DISS_fname").text)
+                if memberName.find("DISS_middle") is not None:
+                    nameList.append(memberName.find("DISS_middle").text)
+                if memberName.find("DISS_surname") is not None:
+                    nameList.append(memberName.find("DISS_surname").text)
+                if memberName.find("DISS_suffix") is not None:
+                    nameList.append(memberName.find("DISS_suffix").text)
+                self.bag.info['advisor' + str(committeeCount)] = " ".join(filter(None, nameList))
+            elif member.tag == "DISS_cmte_member":
+                committeeCount += 1
+                memberName = member.find("DISS_name")
+                nameList = []
+                if memberName.find("DISS_fname") is not None:
+                    nameList.append(memberName.find("DISS_fname").text)
+                if memberName.find("DISS_middle") is not None:
+                    nameList.append(memberName.find("DISS_middle").text)
+                if memberName.find("DISS_surname") is not None:
+                    nameList.append(memberName.find("DISS_surname").text)
+                if memberName.find("DISS_suffix") is not None:
+                    nameList.append(memberName.find("DISS_suffix").text)
+                self.bag.info['committee' + str(committeeCount)] = " ".join(filter(None, nameList))
+        self.bag.info['keywords'] = root.xpath('//DISS_submission/DISS_description/DISS_categorization/DISS_keyword/text()')[0]
+        
+        paragraphList = []
+        abstract = root.xpath('//DISS_submission/DISS_content/DISS_abstract')[0]
+        for paragraph in abstract:
+            if paragraph.tag == "DISS_para":
+                paragraphList.append(paragraph.text)
+        self.bag.info['Abstract'] = "\n".join(filter(None, paragraphList))
 
-        self.bag.info['disciplines'] = ""
-        self.bag.info['advisor1'] = ""
-        self.bag.info['keywords'] = ""
-        self.bag.info['Abstract'] = ""
-
+        #These may be what IR is expecting but I don't see clear data here
         #document_type
         #embargo_date
         #publication_date

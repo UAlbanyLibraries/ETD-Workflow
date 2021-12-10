@@ -24,7 +24,7 @@ for package in os.listdir(incomingPath):
         SIP = SubmissionInformationPackage()
         SIP.create(path)
         print (SIP.identifier)
-        print ("\t" +  SIP.bag.info['Completion-Date'] + " " + SIP.bag.info['Author'])
+        print ("\t" +  SIP.bag.info['Completion-Date'] + " " + SIP.bag.info['Author-1_lname'])
         #print (SIP.bag.info['Author-Email'])
         #print (SIP.bag.info['Title'])
         #print (SIP.path)
