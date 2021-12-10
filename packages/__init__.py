@@ -20,7 +20,26 @@ class InformationPackage:
             self.catalogingDir = "/media/Library/ETDs/CatalogingPackage"
             self.IRDir = "/media/Library/ETDs/IRPackages"
 
-    def loadSIP(self, path):
+    def clean(self):
+        """
+        Accepts a loaded AIP and cleans out filesystem artifacts
+        from the data directory that interfere with Bag validation.
+        """
+        if self.data is None:
+            raise Exception("Error: SIP or AIP must be loaded in order to be cleaned.")
+        else:
+            for root, dirs, files in os.walk(self.data):
+                for file in files:
+                    if file.lower() in self.excludeList:
+                        filePath = os.path.join(root, file)
+                        print ("removing " + filePath)
+                        #os.remove(filePath)
+
+
+
+class SubmissionInformationPackage(InformationPackage):
+
+    def load(self, path):
         """
         Accepts a path of an existing ETD SIP package as a string and loads it as a bag
         """
@@ -36,7 +55,7 @@ class InformationPackage:
         self.data = os.path.join(self.path, "data") 
         self.status = self.bag.info['Bag-Type']
 
-    def createSIP(self, path):
+    def create(self, path):
         """
         Accepts a path of an incoming .zip ETD package
         Copies it to a working directory
@@ -133,10 +152,10 @@ class InformationPackage:
         disciplineList = []
 
 
-        self.bag.info['disciplines'] =
-        self.bag.info['advisor1'] =
-        self.bag.info['keywords'] =
-        self.bag.info['Abstract'] =
+        self.bag.info['disciplines'] = ""
+        self.bag.info['advisor1'] = ""
+        self.bag.info['keywords'] = ""
+        self.bag.info['Abstract'] = ""
 
         #document_type
         #embargo_date
@@ -205,29 +224,19 @@ class InformationPackage:
         if os.path.isdir(IRPackage):
             raise Exception("Error, IR Package directory already exists.")
         # Make IR package directory
-        os.mkdir(IRPackage)
+        #os.mkdir(IRPackage)
         # Copy contents of data directory
         for thing in os.listdir(self.data):
             pass
 
-                
-        
-    def clean(self):
-        """
-        Accepts a loaded AIP and cleans out filesystem artifacts
-        from the data directory that interfere with Bag validation.
-        """
-        if self.data is None:
-            raise Exception("Error: SIP must be loaded in order to be cleaned.")
-        else:
-            for root, dirs, files in os.walk(self.data):
-                for file in files:
-                    if file.lower() in self.excludeList:
-                        filePath = os.path.join(root, file)
-                        print ("removing " + filePath)
-                        #os.remove(filePath)
 
-    def createAIP(self, path):
+
+
+
+class ArchivalInformationPackage(InformationPackage):
+
+
+    def create(self, path):
         pass
 
         """
@@ -250,7 +259,7 @@ class InformationPackage:
         if self.tempDir:
             shutil.rmtree(self.tempDir)
 
-    def loadAIP(self, path):
+    def load(self, path):
         """
         Accepts a path of an existing zipped ETD AIP package as a string
         Then extracts it into a temporary directory

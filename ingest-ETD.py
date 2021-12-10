@@ -1,6 +1,10 @@
 import os
-from packages import InformationPackage
+from packages import SubmissionInformationPackage
 
+"""
+This script looks for ETD packages deposited via ProQuest in the incomingPath.
+It then creates a SIP for the package and makes a derivative package for cataloging.
+"""
 
 #version of ingest-ETD.py
 version = "0.1"
@@ -17,27 +21,12 @@ for package in os.listdir(incomingPath):
             
         #print(SIP)
         path = os.path.join(incomingPath, package)
-        SIP = InformationPackage()
-        SIP.createSIP(path)
+        SIP = SubmissionInformationPackage()
+        SIP.create(path)
         print (SIP.identifier)
         print ("\t" +  SIP.bag.info['Completion-Date'] + " " + SIP.bag.info['Author'])
         #print (SIP.bag.info['Author-Email'])
         #print (SIP.bag.info['Title'])
         #print (SIP.path)
-        SIP.loadSIP(SIP.path)
+        SIP.load(SIP.path)
         SIP.makeCatalogPackage()
-"""
-testSIP = os.path.join(incomingPath, "storage", "SIP", "etdadmin_upload_739987.zip")
-SIP = InformationPackage()
-SIP.loadSIP(testSIP)
-
-print (SIP.identifier)
-print (SIP.bag.info['Author'])
-print (SIP.bag.info['Author-Email'])
-print (SIP.bag.info['Title'])
-print (SIP.bag.info['Completion-Date'])
-print (SIP.identifier)
-SIP.makeCatalogPackage()
-
-SIP.close()
-"""
