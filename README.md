@@ -3,15 +3,18 @@ Workflow for moving ETDs from ProQuest to Alma and Scholar's Archive
 
 ### Overview
 
-This repo includes classes for creating and managing preservation packages for UAlbany's Electronic Theses and Dissertations. Also includes are some basic scripts for development and informal testing.
+This repo includes classes for creating and managing preservation packages for UAlbany's Electronic Theses and Dissertations. Also includes are some basic scripts for development and testing.
 
- There are two types of preservation packages. Both packages are Bagit "bags" utilizing [Bagit-python](https://github.com/LibraryOfCongress/bagit-python).
+There are two types of preservation packages. Both packages are Bagit "bags" utilizing [Bagit-python](https://github.com/LibraryOfCongress/bagit-python).
 
 * SubmissionInformationPackage (SIP)
+
 	This is created when the zipped ETD from ProQuest is ingested. It parses the included XML to put the metadata we need in bag-info.txt for later use. Derivative packages are created from the SIP for cataloging and ingest into the Institutional Repository (IR)
 * ArchivalInformationPackage (AIP)
-	This replaces the corresponding SIP after cataloging and ingest into the IR. It includes all relevant identifiers and URLs created during cataloging and ingest into the IR. The AIP is the package that is pererved long term.
 
+	This replaces the corresponding SIP after cataloging and ingest into the IR. It includes all relevant identifiers and URLs created during cataloging and ingest into the IR. The AIP is the package that is preserved long term.
+
+The workflow also preserves the original ProQuest packages along with SIPs unless the final AIP is created.
 
 ### Basic Use
 
@@ -86,8 +89,8 @@ All SIPs and AIPs are bags and can be used according to the [bagit-python](https
   SIP.bag.save()
 
   if SIP.bag.is_valid():
-  	print ("yes, checksums match")
+    print ("yes, checksums match")
   else:
-  	print ("no, content has changed since bagging.")
+    print ("no, content has changed since bagging.")
 
   ````
