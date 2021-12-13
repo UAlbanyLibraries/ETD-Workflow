@@ -157,7 +157,8 @@ class SubmissionInformationPackage(InformationPackage):
         categorization = root.xpath('//DISS_submission/DISS_description/DISS_categorization')[0]
         for catagory in categorization:
             if catagory.tag == "DISS_category":
-                disciplineList.append(catagory.find("DISS_cat_desc").text)
+                if catagory.find("DISS_cat_desc").text:
+                    disciplineList.append(catagory.find("DISS_cat_desc").text)
         self.bag.info['disciplines'] = "|".join(disciplineList)
 
         committee = root.xpath('//DISS_submission/DISS_description')[0]
@@ -176,7 +177,7 @@ class SubmissionInformationPackage(InformationPackage):
                     nameList.append(memberName.find("DISS_surname").text)
                 if memberName.find("DISS_suffix") is not None:
                     nameList.append(memberName.find("DISS_suffix").text)
-                self.bag.info['advisor' + str(committeeCount)] = " ".join(filter(None, nameList))
+                self.bag.info['advisor' + str(advisorCount)] = " ".join(filter(None, nameList))
             elif member.tag == "DISS_cmte_member":
                 committeeCount += 1
                 memberName = member.find("DISS_name")
@@ -196,8 +197,8 @@ class SubmissionInformationPackage(InformationPackage):
         abstract = root.xpath('//DISS_submission/DISS_content/DISS_abstract')[0]
         for paragraph in abstract:
             if paragraph.tag == "DISS_para":
-                paragraphList.append(paragraph.text)
-        self.bag.info['Abstract'] = "\n".join(filter(None, paragraphList))
+                paragraphList.append(paragraph.text.strip())
+        self.bag.info['Abstract'] = "|".join(filter(None, paragraphList))
 
         #These may be what IR is expecting but I don't see clear data here
         #document_type
@@ -214,7 +215,7 @@ class SubmissionInformationPackage(InformationPackage):
         if self.data is None:
             raise Exception("Error: SIP must be loaded first.")
         incoming = os.path.join(self.catalogingDir, "incoming")
-        catalogPackage = os.path.join(incoming, self.bag.info['Completion-Date'] + "_" + self.bag.info['Author-Surname'] + "_xxxxxxxx")
+        catalogPackage = os.path.join(incoming, self.bag.info['Completion-Date'] + "_" + self.bag.info['Author-1_lname'] + "_xxxxxxxx")
         if os.path.isdir(catalogPackage):
             raise Exception("Error, Cataloging Package directory already exists.")
         # Make cataloging package directory
