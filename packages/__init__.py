@@ -191,7 +191,9 @@ class SubmissionInformationPackage(InformationPackage):
                 if memberName.find("DISS_suffix") is not None:
                     nameList.append(memberName.find("DISS_suffix").text)
                 self.bag.info['committee' + str(committeeCount)] = " ".join(filter(None, nameList))
-        self.bag.info['keywords'] = root.xpath('//DISS_submission/DISS_description/DISS_categorization/DISS_keyword/text()')[0]
+        keywords = root.xpath('//DISS_submission/DISS_description/DISS_categorization/DISS_keyword/text()')
+        if len(keywords) > 0:
+            self.bag.info['keywords'] = root.xpath('//DISS_submission/DISS_description/DISS_categorization/DISS_keyword/text()')[0]
         
         paragraphList = []
         abstract = root.xpath('//DISS_submission/DISS_content/DISS_abstract')[0]
@@ -260,11 +262,14 @@ class SubmissionInformationPackage(InformationPackage):
     def makeIRPackage(self):
         """
         Takes a loaded SIP and creates a derivative package for the IR
+        This is still to-do.
+        Most of the Spreadsheet stuff is happening in readCatalogedSIPs.py
+        This might end up being just copy the pdfs to a webserver
         """
         if self.data is None:
             raise Exception("Error: SIP must be loaded first.")
         incoming = os.path.join(self.IRDir, "incoming")
-        IRPackage = os.path.join(incoming, self.bag.info['Completion-Date'] + "_" + self.bag.info['Author-Surname'] + self.identifier)
+        IRPackage = os.path.join(incoming, self.bag.info['Completion-Date'] + "_" + self.bag.info['Author-1_lname'] + self.identifier)
         if os.path.isdir(IRPackage):
             raise Exception("Error, IR Package directory already exists.")
         # Make IR package directory
@@ -272,6 +277,21 @@ class SubmissionInformationPackage(InformationPackage):
         # Copy contents of data directory
         for thing in os.listdir(self.data):
             pass
+
+    def writeField(self, row, fieldName, backup=None):
+        """
+        Takes row as a list and adds metadata from bag-info using fieldName.
+        If the data is not precent, add an empty sting which will create an empty cell.
+        If backup is used, use that field name if the other is not present
+        """
+        # I which keys we're not case sensative but thats a bit tricky
+        if fieldName in self.bag.info.keys():
+            row.append(self.bag.info[fieldName])
+        elif not backup is None and backup in self.bag.info.keys():
+            row.append(self.bag.info[backup])
+        else:
+            row.append("")
+        return (row)
 
 
 
