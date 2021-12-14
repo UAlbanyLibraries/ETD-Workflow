@@ -17,12 +17,7 @@ if os.name == "nt":
 else:
     catalogingPath = "/media/Library/ETDs/CatalogingPackage"
     irPath = "/media/Library/ETDs/IRPackages/incoming"
-incomingPath = os.path.join(catalogingPath, "outgoing")
-
-def writeField(row, fieldName):
-    if 'author1_mname' in SIP.bag.info:
-        row.append(SIP.bag.info['author1_mname'])
-    return row
+catalogingIncomingPath = os.path.join(catalogingPath, "outgoing")
 
 ingestSpreadsheet = os.path.join(irPath, "ingest_" + datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".xlsx")
 wb = Workbook()
@@ -32,11 +27,11 @@ headings = ["title", "fulltext_url", "keywords", "abstract", "author1_fname", "a
  "comments", "degree_name", "department", "document_type", "embargo_date", "publication_date", "season"]
 ws.append(headings)
 
-for package in os.listdir(incomingPath):
+for package in os.listdir(catalogingIncomingPath):
     print ("Reading " + package + "...")
 
     SIP = SubmissionInformationPackage()
-    pathSIP = SIP.lookup(os.path.join(incomingPath, package))
+    pathSIP = SIP.lookup(os.path.join(catalogingIncomingPath, package))
     SIP.load(pathSIP)
     #print (SIP.bag.is_valid())
 
