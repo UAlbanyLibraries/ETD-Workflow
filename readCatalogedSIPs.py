@@ -9,6 +9,16 @@ It then adds the Bib record ID to the SIP (and possibly the ProQuest ID?).
 Finally it creates a derivative package for ingest into the IR.
 """
 
+def initializeWorkbook():
+    wb = Workbook()
+    ws = wb.active
+    headings = ["title", "fulltext_url", "keywords", "abstract", "author1_fname", "author1_mname", "author1_lname",\
+     "author1_suffix", "author1_email", "author1_institution", "advisor1", "advisor2", "advisor3", "disciplines",\
+     "comments", "degree_name", "department", "document_type", "embargo_date", "publication_date", "season"]
+    ws.append(headings)
+    
+    return wb;
+
 #version of readCatalogedSIPs.py
 version = "0.1"
 if os.name == "nt":
@@ -19,13 +29,17 @@ else:
     irPath = "/media/Library/ETDs/IRPackages/incoming"
 catalogingIncomingPath = os.path.join(catalogingPath, "outgoing")
 
-ingestSpreadsheet = os.path.join(irPath, "ingest_" + datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".xlsx")
-wb = Workbook()
-ws = wb.active
-headings = ["title", "fulltext_url", "keywords", "abstract", "author1_fname", "author1_mname", "author1_lname",\
- "author1_suffix", "author1_email", "author1_institution", "advisor1", "advisor2", "advisor3", "disciplines",\
- "comments", "degree_name", "department", "document_type", "embargo_date", "publication_date", "season"]
-ws.append(headings)
+#ingestSpreadsheet = os.path.join(irPath, "ingest_" + datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".xlsx")
+
+#initialize hashmap, workbook per department
+hashmap_wb = dict()
+
+#wb = Workbook()
+#ws = wb.active
+#headings = ["title", "fulltext_url", "keywords", "abstract", "author1_fname", "author1_mname", "author1_lname",\
+# "author1_suffix", "author1_email", "author1_institution", "advisor1", "advisor2", "advisor3", "disciplines",\
+# "comments", "degree_name", "department", "document_type", "embargo_date", "publication_date", "season"]
+#ws.append(headings)
 
 for package in os.listdir(catalogingIncomingPath):
     print ("Reading " + package + "...")
@@ -40,7 +54,7 @@ for package in os.listdir(catalogingIncomingPath):
     SIP.bag.info['Bib-Record'] = package
     #SIP.bag.save()
     #print (SIP.bag.is_valid())
-
+    
     # build the spreadsheet row
     row = []
     row = SIP.writeField(row, "Title")
@@ -66,8 +80,17 @@ for package in os.listdir(catalogingIncomingPath):
     row.append("")
     row.append("")
     row.append("")
+    
+    # identify department, call up associated Workbook and worksheet
+    dept = SIP.bag.info['Department']
+    
+    if not dept in hashmap_wb:
+        hashmap_wb[dept] = initializeWorkbook()
+    
+    wb = hashmap_wb[dept]
+    ws = wb.active
     ws.append(row)
-
+    
     # remove cataloging package
     print ("Removing cataloging package " + package)
     #os.remove(os.path.join(incomingPath, package))
@@ -75,5 +98,12 @@ for package in os.listdir(catalogingIncomingPath):
     # Build IR package
     #SIP.makeIRPackage()
 
-#write IR ingest spreadsheet
-wb.save(ingestSpreadsheet)
+##write IR ingest spreadsheet
+#wb.save(ingestSpreadsheet)
+
+#write IR injest spreadsheets per department
+depts = hashmap_wb.keys()
+for dept in depts:
+    wb = hashmap_wb[dept]
+    wb.save(os.path.join(irPath, "ingest_" + dept + "_" + datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".xlsx"))
+    
