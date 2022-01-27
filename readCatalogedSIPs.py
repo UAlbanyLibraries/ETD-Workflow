@@ -105,5 +105,5 @@ for package in os.listdir(catalogingIncomingPath):
 depts = hashmap_wb.keys()
 for dept in depts:
     wb = hashmap_wb[dept]
-    wb.save(os.path.join(irPath, "ingest_" + dept + "_" + datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + ".xlsx"))
+    wb.save(os.path.join(irPath, "ingest_" + datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + "_" + dept + ".xlsx"))
     
