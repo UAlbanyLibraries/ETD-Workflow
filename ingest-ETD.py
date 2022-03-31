@@ -1,36 +1,32 @@
 import os
-from packages import ArchivalInformationPackage
+from packages import SubmissionInformationPackage
 
+"""
+This script looks for ETD packages deposited via ProQuest in the incomingPath.
+It then creates a SIP for the package and makes a derivative package for cataloging.
+"""
 
 #version of ingest-ETD.py
 version = "0.1"
 if os.name == "nt":
-    pathSIP = "\\\\Lincoln\\Library\\ETDs\\AIP_testing"
+    incomingPath = "\\\\Lincoln\\Library\\ETDs\\Testing"
 else:
-    pathSIP = "/media/Library/ETDs/AIP_testing"
+    incomingPath = "/media/Library/ETDs/Testing"
 
-"""
-for SIP in os.listdir(pathSIP):
-    if SIP.startswith("etdadmin_upload_") and SIP.endswith(".zip"):
+
+for package in os.listdir(incomingPath):
+    if package.startswith("etdadmin_upload_") and package.endswith(".zip"):
         #if new?:
-        if SIP == "etdadmin_upload_738128.zip":
+        #if package == "etdadmin_upload_739987.zip":
             
-            #print(SIP)
-            path = os.path.join(pathSIP, SIP)
-            AIP = ArchivalInformationPackage()
-            AIP.create(path)
-            print (AIP.identifier)
-            print (AIP.bag.info['Author'])
-            print (AIP.bag.info['Author-Email'])
-"""
-testAIP = os.path.join(pathSIP, "storage", "etdadmin_upload_738128.zip")
-AIP = ArchivalInformationPackage()
-AIP.load(testAIP)
-
-AIP.metadata()
-print (AIP.identifier)
-print (AIP.bag.info['Author'])
-print (AIP.bag.info['Author-Email'])
-print (AIP.bag.info['Title'])
-print (AIP.bag.info['Completion-Date'])
-AIP.close()
+        #print(SIP)
+        path = os.path.join(incomingPath, package)
+        SIP = SubmissionInformationPackage()
+        SIP.create(path)
+        print (SIP.identifier)
+        print ("\t" +  SIP.bag.info['Completion-Date'] + " " + SIP.bag.info['Author-1_lname'])
+        #print (SIP.bag.info['Author-Email'])
+        #print (SIP.bag.info['Title'])
+        #print (SIP.path)
+        SIP.load(SIP.path)
+        SIP.makeCatalogPackage()
